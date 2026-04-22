@@ -5,17 +5,9 @@
   library(dplyr)
   library(ggplot2)
 
-# Configuración de variables
-  project_id <- "primeval-beaker-492201-f6"
-  sql <- "SELECT * FROM `primeval-beaker-492201-f6.info_demografica.Clientes`"
+# Consulta realizada sobre una base proporcionada para fines académicos
+# El acceso real fue omitido por confidencialidad
 
-# Configurar los roles específicos: Usuario de BigQuery & Visor de datos de BigQuery
-
-# Al ejecutar esta línea, R abrirá una ventana en el navegador para que el estudiante
-# inicie sesión con su cuenta de Google.
-  tb <- bq_project_query(project_id, sql)
-  datos <- bq_table_download(tb)
-  table(datos$REFINANCIAMIENTO_REESTRUCTURA)
 # =================================================
 #                  PROCEDIMIENTO INICIAL
 # =================================================
