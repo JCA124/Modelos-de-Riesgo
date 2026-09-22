@@ -86,7 +86,7 @@ tabla_performance <- function(data, nrangos=10){# DataFrame con dos variables "S
 
 
 # ==============================================================================
-# 3.5 Construccion de variables SCE (consolidadas) a partir de variables brutas
+# 3.5 Construccion de variables 
 # ==============================================================================
 datos[, ANTIGUEDAD_SCE := pmax(ANTIGUEDAD_OP_SBS, ANTIGUEDAD_TC_SBS, ANTIGUEDAD_OP_SC,
                                 ANTIGUEDAD_TC_SC, ANTIGUEDAD_OP_SICOM, ANTIGUEDAD_TC_SICOM)]
@@ -180,7 +180,7 @@ cor(datos[,c("ANTIGUEDAD_SCE","MVALVEN_SBS_OP_3M","NOPE_APERT_SBS_OP_12M",
              "NENT_VEN_SCE_12M")],use="pairwise.complete.obs")
 
 # ==============================================================================
-# 6. Tratamiento de atipicos (acotacion)
+# 6. Tratamiento de atipicos 
 # ==============================================================================
 # NOPE_APERT_SBS_OP_12M
 datos[NOPE_APERT_SBS_OP_12M > 35, NOPE_APERT_SBS_OP_12M := 35]
@@ -309,8 +309,7 @@ my_nn  <- h2o.deeplearning(x = x_nn, y = y_em,
                            keep_cross_validation_predictions = TRUE, seed = 12345)
 
 # ==============================================================================
-# 10. Modelos base para ensambles (todos sobre vars_ens)
-# h2o.stackedEnsemble requiere mismo training_frame y fold_assignment
+# 10. Modelos base para ensambles 
 # ==============================================================================
 glm_ens <- h2o.glm(x = x_ens, y = y_em, training_frame = mod_em_ens,
                    alpha = 0.1, remove_collinear_columns = TRUE,
@@ -355,7 +354,7 @@ e3m <- h2o.stackedEnsemble(x = x_ens, y = y_em,
                            base_models = list(glm_ens, gbm_ens, nn_ens, rf_ens))
 
 # ==============================================================================
-# 12. Funciones auxiliares (no modificar)
+# 12. Funciones auxiliares 
 # ==============================================================================
 rango_score <- function(vector){
   index <- aux <- seq(1:length(vector))
@@ -445,27 +444,5 @@ tabla_performance(mod_e3m)
 val_e3m <- setDT(res_fun(val, h2o.predict(e3m, newdata = val_em_ens)))
 colnames(val_e3m)[1] <- "Var"
 tabla_performance(val_e3m)
-
-# ==============================================================================
-# 15. Guardado de modelos entrenados para el Shiny
-# ==============================================================================
-# Los 4 modelos que usa el aplicativo: GLM, RF, GBM y el Ensamble_3m como "Ensamble".
-# Se guardan con nombre de archivo fijo para que el Shiny los cargue sin ambiguedad.
-dir_modelos <- "Aplicativo Shiny/modelos"
-dir.create(dir_modelos, showWarnings = FALSE, recursive = TRUE)
-
-guardar_modelo <- function(modelo, nombre_archivo){
-  ruta_tmp <- h2o.saveModel(object = modelo, path = dir_modelos, force = TRUE)
-  ruta_final <- file.path(dir_modelos, nombre_archivo)
-  if (file.exists(ruta_final)) file.remove(ruta_final)
-  file.rename(ruta_tmp, ruta_final)
-  cat(nombre_archivo, "guardado en", ruta_final, "\n")
-  invisible(ruta_final)
-}
-
-guardar_modelo(my_glm, "modelo_glm")
-guardar_modelo(my_rf,  "modelo_rf")
-guardar_modelo(my_gbm, "modelo_gbm")
-guardar_modelo(e3m,    "modelo_ensamble")
 
 
